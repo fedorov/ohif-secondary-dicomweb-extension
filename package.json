@@ -4,7 +4,8 @@
   "description": "",
   "author": "ImagingDataCommons",
   "license": "MIT",
-  "main": "dist/umd/ohif-gcp-extension/index.umd.js",
+  "main": "src/index.tsx",
+  "module": "src/index.tsx",
   "files": [
     "dist/**",
     "public/**",
@@ -14,7 +15,6 @@
   "keywords": [
     "ohif-extension"
   ],
-  "module": "src/index.tsx",
   "engines": {
     "node": ">=14",
     "npm": ">=6",
