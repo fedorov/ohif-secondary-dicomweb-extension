@@ -14,8 +14,18 @@ export default {
    * DataSources can be used to map the external data formats to the OHIF's
    * native format. DataSources are defined by an object of { name, type, createDataSource }.
    */
-  preRegistration: ({ extensionManager, appConfig }) => {
+  preRegistration: ({ extensionManager, appConfig, servicesManager }) => {
+    const { uiNotificationService } = servicesManager.services;
+
     const GCP_DATA_SOURCE_NAME = "gcp";
+
+    const isValidHealthcareURL = (url) => {
+      const regex = /^(https:\/\/healthcare\.googleapis\.com\/v1(?:[^/]+)?\/)?projects\/[^/]+\/locations\/[^/]+\/datasets\/[^/]+\/dicomStores\/[^/]+$/;
+      return regex.test(url);
+    };
+
+    const defaultDataSourceName = appConfig.defaultDataSourceName;
+    const defaultDataSource = appConfig.dataSources.find((dataSource) => dataSource.sourceName === defaultDataSourceName);
 
     extensionManager.addDataSource({
       friendlyName: "GCP DICOMWeb Data Source From Query Params",
@@ -41,40 +51,53 @@ export default {
           const { query } = options;
           const gcp = query.get(GCP_DATA_SOURCE_NAME);
           if (gcp) {
-            const { project, location, dataset, dicomStore } =
-              extractParams(gcp);
-            const pathUrl = `https://healthcare.googleapis.com/v1/projects/${project}/locations/${location}/datasets/${dataset}/dicomStores/${dicomStore}/dicomWeb`;
-            return {
-              ...dicomWebConfig,
-              wadoRoot: pathUrl,
-              qidoRoot: pathUrl,
-              wadoUri: pathUrl,
-              wadoUriRoot: pathUrl,
-              qidoSupportsIncludeField: false,
-              imageRendering: "wadors",
-              thumbnailRendering: "wadors",
-              enableStudyLazyLoad: true,
-              supportsFuzzyMatching: false,
-              supportsWildcard: false,
-              singlepart: "bulkdata,video,pdf",
-              useBulkDataURI: false,
-              bulkDataURI: undefined,
-            };
+            if (isValidHealthcareURL(gcp)) {
+              const { project, location, dataset, dicomStore } = extractParams(gcp);
+              const pathUrl = `https://healthcare.googleapis.com/v1/projects/${project}/locations/${location}/datasets/${dataset}/dicomStores/${dicomStore}/dicomWeb`;
+              return {
+                ...dicomWebConfig,
+                wadoRoot: pathUrl,
+                qidoRoot: pathUrl,
+                wadoUri: pathUrl,
+                wadoUriRoot: pathUrl,
+                qidoSupportsIncludeField: false,
+                imageRendering: "wadors",
+                thumbnailRendering: "wadors",
+                enableStudyLazyLoad: true,
+                supportsFuzzyMatching: false,
+                supportsWildcard: false,
+                singlepart: "bulkdata,video,pdf",
+                useBulkDataURI: false,
+                bulkDataURI: undefined,
+              };
+            } else {
+              uiNotificationService.show({
+                title: 'Invalid GCP query param',
+                message: 'The provided GCP URL is not valid.',
+                type: 'warning',
+                autoClose: false
+              });
+              return defaultDataSource.configuration;
+            }
           }
         },
       },
     });
 
-    const defaultDataSourceName = appConfig.defaultDataSourceName;
-
-    let redirectURL = sessionStorage.getItem("ohif-redirect-to");
-    redirectURL = redirectURL ? JSON.parse(redirectURL) : null;
-    const redirectQueryParams = new URLSearchParams(redirectURL?.search);
+    let redirectURL: { search: string } | null = null;
+    const storedRedirect = sessionStorage.getItem("ohif-redirect-to");
+    if (storedRedirect) {
+      try {
+        redirectURL = JSON.parse(storedRedirect);
+      } catch (error) {
+        console.error("Failed to parse stored redirect URL", error);
+      }
+    }
+    const redirectQueryParams = new URLSearchParams(redirectURL?.search || '');
 
     const query = new URLSearchParams(window.location.search);
     const gcpURLFromQueryParam = query.get(GCP_DATA_SOURCE_NAME) || redirectQueryParams.get(GCP_DATA_SOURCE_NAME)
     if (gcpURLFromQueryParam) {
-      console.debug('gcp-extension-merge');
       extensionManager.addDataSource(
         {
           sourceName: "gcp-extension-merge",
