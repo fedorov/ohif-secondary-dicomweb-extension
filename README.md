@@ -7,7 +7,7 @@ The **GCP Extension** enhances the OHIF viewer, enabling seamless integration wi
 - **Load & Merge Studies**: Load studies and merge results from a GCP Healthcare URL.  
   - Example GCP URL:
     ```
-    http://localhost:3000/viewer?StudyInstanceUID=123&gcp=projects/your-project/locations/us-west1/datasets/annotations/dicomStores/annotations
+    http://localhost:3000/viewer?StudyInstanceUIDs=123&gcp=projects/your-project/locations/us-west1/datasets/annotations/dicomStores/annotations
     ```
 
 ## How to Add the GCP Extension to Your OHIF Fork
