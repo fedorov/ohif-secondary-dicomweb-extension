@@ -20,7 +20,7 @@ export default {
     const GCP_DATA_SOURCE_NAME = "gcp";
 
     const isValidHealthcareURL = (url) => {
-      const regex = /^(https:\/\/healthcare\.googleapis\.com\/v1(?:[^/]+)?\/)?projects\/[^/]+\/locations\/[^/]+\/datasets\/[^/]+\/dicomStores\/[^/]+$/;
+      const regex = /^(https:\/\/healthcare\.googleapis\.com\/v1(?:[^/]+)?\/|\/)?projects\/[^/]+\/locations\/[^/]+\/datasets\/[^/]+\/dicomStores\/[^/]+(\/study\/[^/]+)?$/;
       return regex.test(url);
     };
 

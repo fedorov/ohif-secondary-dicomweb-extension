@@ -5,9 +5,13 @@ The **GCP Extension** enhances the OHIF viewer, enabling seamless integration wi
 ## Key Features
 
 - **Load & Merge Studies**: Load studies and merge results from a GCP Healthcare URL.  
-  - Example GCP URL:
+  - Query param examples:
     ```
-    http://localhost:3000/viewer?StudyInstanceUIDs=123&gcp=projects/your-project/locations/us-west1/datasets/annotations/dicomStores/annotations
+    # GCP Path
+    http://localhost:3000/viewer?StudyInstanceUIDs=2.25.169909530366026741902094648458907485460&gcp=https://healthcare.googleapis.com/v1beta1/projects/idc-dicom-review/locations/us-central1/datasets/rms_seg_test_fractional_multiclass_tiled_full-dataset/dicomStores/rms_seg_test_fractional_multiclass_tiled_full-dicom-store/study/2.25.169909530366026741902094648458907485460
+
+    # Relative GCP Path
+    http://localhost:3000/viewer?StudyInstanceUIDs=2.25.169909530366026741902094648458907485460&gcp=/projects/idc-dicom-review/locations/us-central1/datasets/rms_seg_test_fractional_multiclass_tiled_full-dataset/dicomStores/rms_seg_test_fractional_multiclass_tiled_full-dicom-store/study/2.25.169909530366026741902094648458907485460
     ```
 
 ## How to Add the GCP Extension to Your OHIF Fork
