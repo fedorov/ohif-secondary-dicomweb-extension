@@ -17,7 +17,7 @@ export default {
   preRegistration: ({ extensionManager, appConfig, servicesManager }) => {
     const { uiNotificationService } = servicesManager.services;
 
-    const GCP_DATA_SOURCE_NAME = "gcp";
+    const DATA_SOURCE_NAME = "dicomweb";
 
     const isValidHealthcareURL = (url) => {
       const regex = /^(https:\/\/healthcare\.googleapis\.com\/v1(?:[^/]+)?\/|\/)?projects\/[^/]+\/locations\/[^/]+\/datasets\/[^/]+\/dicomStores\/[^/]+(\/study\/[^/]+)?$/;
@@ -28,11 +28,11 @@ export default {
     const defaultDataSource = appConfig.dataSources.find((dataSource) => dataSource.sourceName === defaultDataSourceName);
 
     extensionManager.addDataSource({
-      friendlyName: "GCP DICOMWeb Data Source From Query Params",
+      friendlyName: "Secondary DICOMWeb Data Source From Query Params",
       namespace: "@ohif/extension-default.dataSourcesModule.dicomweb",
-      sourceName: GCP_DATA_SOURCE_NAME,
+      sourceName: DATA_SOURCE_NAME,
       configuration: {
-        name: GCP_DATA_SOURCE_NAME,
+        name: DATA_SOURCE_NAME,
         qidoSupportsIncludeField: false,
         imageRendering: "wadors",
         thumbnailRendering: "wadors",
@@ -49,11 +49,10 @@ export default {
             dicomStore: url.split("dicomStores/")[1].split("/")[0],
           });
           const { query } = options;
-          const gcp = query.get(GCP_DATA_SOURCE_NAME);
-          if (gcp) {
-            if (isValidHealthcareURL(gcp)) {
-              const { project, location, dataset, dicomStore } = extractParams(gcp);
-              const pathUrl = `https://healthcare.googleapis.com/v1/projects/${project}/locations/${location}/datasets/${dataset}/dicomStores/${dicomStore}/dicomWeb`;
+          const dcmweb = query.get(DATA_SOURCE_NAME);
+          if (dcmweb) {
+            if (1) {
+              const pathUrl = `https://${dcmweb}`;
               return {
                 ...dicomWebConfig,
                 wadoRoot: pathUrl,
@@ -72,8 +71,8 @@ export default {
               };
             } else {
               uiNotificationService.show({
-                title: 'Invalid GCP query param',
-                message: 'The provided GCP URL is not valid.',
+                title: 'Invalid secondary DICOMweb query param',
+                message: 'The provided DICOMWeb URL is not valid.',
                 type: 'warning',
                 autoClose: false
               });
@@ -96,7 +95,7 @@ export default {
     const redirectQueryParams = new URLSearchParams(redirectURL?.search || '');
 
     const query = new URLSearchParams(window.location.search);
-    const gcpURLFromQueryParam = query.get(GCP_DATA_SOURCE_NAME) || redirectQueryParams.get(GCP_DATA_SOURCE_NAME)
+    const gcpURLFromQueryParam = query.get(DATA_SOURCE_NAME) || redirectQueryParams.get(DATA_SOURCE_NAME)
     if (gcpURLFromQueryParam) {
       extensionManager.addDataSource(
         {
@@ -106,7 +105,7 @@ export default {
             name: "gcp-extension-merge",
             friendlyName: "GCP Merge Data Source",
             seriesMerge: {
-              dataSourceNames: [defaultDataSourceName, GCP_DATA_SOURCE_NAME],
+              dataSourceNames: [defaultDataSourceName, DATA_SOURCE_NAME],
               defaultDataSourceName: defaultDataSourceName,
             },
           },
