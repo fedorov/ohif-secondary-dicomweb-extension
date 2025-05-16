@@ -18,8 +18,9 @@ This extension enhances the OHIF viewer enabling merging imaging study content f
 
 In the OHIF `package.json` file, include `ohif-gcp-extension` as a dependency. Since it’s not published to NPM, specify the GitHub repository URL and branch name.
 
-```json
+```js
 /** File: platform/app/package.json */
+
 "dependencies": {
   "secondary-dicomweb-extension": "https://github.com/fedorov/ohif-secondary-dicomweb-extension#main",
   ...
